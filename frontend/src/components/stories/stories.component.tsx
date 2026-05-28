@@ -13,6 +13,16 @@ import { useGetProfileInfoQuery } from "../../redux/apis/user.api";
 import { getErrorMessage } from "../../error/error.message";
 import useKeyboardShortcuts from "../../hooks/useKeyboardShortcuts";
 import StoryGeneratingAnimation from "../loading/story-generating-animation.component";
+const soundtrackMap: Record<string, string> = {
+  "🧙 Fantasy": "/audio/fantasy.mp3",
+  "😱 Horror": "/audio/horror.mp3",
+  "💕 Romance": "/audio/romance.mp3",
+  "🎭 Drama": "/audio/drama.mp3", 
+  "😂 Comedy": "/audio/comedy.mp3", 
+  "🚀 Sci-Fi": "/audio/sci-fi.mp3", 
+  "🔍 Mystery": "/audio/mystery.mp3", 
+  "🌟 Adventure": "/audio/adventure.mp3"
+};
 type Inputs = {
   prompt: string;
 };
@@ -325,6 +335,27 @@ const StoriesComponent = () => {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const languageDropdownRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const playSoundtrack = (genre: string) => {
+    const soundtrack = soundtrackMap[genre];
+
+    if (!soundtrack) return;
+
+    if (audioRef.current) {
+      audioRef.current.pause();
+      audioRef.current.currentTime = 0;
+    }
+
+    const audio = new Audio(soundtrack);
+    audio.loop = true;
+    audio.volume = 0.3;
+
+    audio.play().catch((err) => {
+      console.log("Audio playback failed:", err);
+    });
+
+    audioRef.current = audio;
+  };
   const activeGenerationRef = useRef<{ abort: () => void } | null>(null);
   const isGenerationInProgressRef = useRef(false);
   const [guestRequestCount, setGuestRequestCount] = useState<number>(() =>
@@ -452,9 +483,13 @@ const StoriesComponent = () => {
       if (res) {
         toast.success(res.message);
         setStories(res.data as IStories[]);
+        setTextareaValue("");
         setSelectedPrompt("");
         setValue("prompt", "");
-        reset();
+        // audio last — it's non-critical
+        if (selectedGenre) {
+          playSoundtrack(selectedGenre);
+        }
         if (!login) {
           const newCount = guestRequestCount + 1;
           setGuestRequestCount(newCount);
@@ -590,9 +625,19 @@ const StoriesComponent = () => {
         <button
           key={genre.value}
           type="button"
-          onClick={() =>
-            setSelectedGenre(selectedGenre === genre.value ? "" : genre.value)
-          }
+          onClick={() => {
+            const newGenre =
+              selectedGenre === genre.value ? "" : genre.value;
+
+            setSelectedGenre(newGenre);
+
+            if (newGenre) {
+              playSoundtrack(newGenre);
+            } else if (audioRef.current) {
+              audioRef.current.pause();
+              audioRef.current.currentTime = 0;
+            }
+          }}
           className={`px-3 py-1 rounded-full text-xs font-medium transition-all duration-200 ${
             selectedGenre === genre.value
               ? "bg-indigo-500 text-white shadow-lg shadow-indigo-500/30"

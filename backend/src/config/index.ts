@@ -16,6 +16,7 @@ const parseCorsOrigins = (
 export default {
   env: process.env.NODE_ENV,
   port: process.env.PORT || "5000",
+  disable_logs: process.env.DISABLE_LOGS === "true" || process.env.VERCEL === "1",
   database_url: process.env.DATABASE_URL?.trim() || undefined,
   cors_origins: parseCorsOrigins(process.env.CORS_ORIGINS),
   bcrypt_salt_rounds: process.env.SALT_ROUNDS,
@@ -33,4 +34,8 @@ export default {
   verify_email: process.env.VERIFY_EMAIL,
   verify_password: process.env.VERIFY_PASSWORD,
   google_client_id: process.env.GOOGLE_CLIENT_ID,
+  github: {
+    token: process.env.GITHUB_TOKEN,
+    repo: process.env.GITHUB_REPO || "Arpita2919/story-spark-ai",
+  },
 };
