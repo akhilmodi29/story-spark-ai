@@ -47,7 +47,7 @@ instance.interceptors.response.use(
       errorObject = {
         statusCode: error.response.data?.statusCode || 500,
         message: error.response.data?.message || "Something went wrong!",
-        errorMessages: error.response.data?.errorMessage || [],
+        errorMessages: error.response.data?.errorMessages || [],
       };
     } else {
       errorObject = {
