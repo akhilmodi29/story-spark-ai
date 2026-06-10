@@ -1,5 +1,10 @@
 import { useState, useRef } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
+import { isLoggedIn, removeUserInfo, getUserInfo } from "../../services/auth.service";
+import { useNotifications } from "../../hooks/useNotifications";
+import NotificationComponent from "../notification/notification.component";
+import ThemeToggle from "../theme/theme_toggle.component";
+import { USER_ROLE } from "../../constants/role";
 
 import logo from "../../assets/logo.png";
 
@@ -8,22 +13,28 @@ const NavListComponent = () => {
 
   const [menuOpen, setMenuOpen] = useState(false);
 
-  // Dummy states (replace with actual logic later if needed)
-  const isLogin = false;
-  const isAdmin = false;
-
   const notificationMenuRef = useRef<HTMLDivElement | null>(null);
 
-  const notifications: unknown[] = [];
-  const unreadCount = 0;
-  const isOpen = false;
+  const {
+    notifications,
+    unreadCount,
+    isOpen,
+    isFetching,
+    isMarkingAllRead,
+    toggle,
+    close,
+    markAsRead,
+    markAllAsRead,
+  } = useNotifications();
 
-  const toggle = () => {};
-  const close = () => {};
-  const markAsRead = () => {};
+  const user = getUserInfo();
+  const isLogin = isLoggedIn();
+  const isAdmin =
+    user?.role === USER_ROLE.ADMIN || user?.role === USER_ROLE.SUPER_ADMIN;
 
   const handelLogout = () => {
-    console.log("logout");
+    removeUserInfo();
+    navigate("/");
   };
 
   const getLinkClass = (isActive: boolean) =>
@@ -58,9 +69,7 @@ const NavListComponent = () => {
     </button>
   );
 
-  const NotificationComponent = () => null;
-
-  return (
+  const NotificationComponent = () => null;  return (
     <header className="sticky top-0 z-50 w-full bg-white/90 supports-[backdrop-filter]:bg-white/75 dark:bg-[#0B1120]/80 dark:supports-[backdrop-filter]:bg-[#0B1120]/70 backdrop-blur-md border-b border-slate-200/70 dark:border-white/10 transition-colors duration-300 transform-gpu">
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3">
         <div className="flex items-center justify-between w-full gap-2">
@@ -209,7 +218,15 @@ const NavListComponent = () => {
           </div>
         </div>
 
-        <NotificationComponent />
+        <NotificationComponent
+          notifications={notifications as import("../../models/notification").NotificationItem[]}
+          showNotification={isOpen}
+          setShowNotification={(show) => (show ? toggle() : close())}
+          unreadCount={unreadCount}
+          onMarkAsRead={markAsRead}
+          onMarkAllAsRead={markAllAsRead}
+          isMarkingAllRead={isMarkingAllRead}
+        />
 
         {/* Mobile Menu */}
         {menuOpen && (

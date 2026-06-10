@@ -9,6 +9,8 @@ interface INotificationComponentProps {
   setShowNotification: (show: boolean) => void;
   unreadCount: number;
   onMarkAsRead: (notificationId: string) => void;
+  onMarkAllAsRead: () => void;
+  isMarkingAllRead?: boolean;
 }
 
 const NotificationComponent: React.FC<INotificationComponentProps> = ({
@@ -17,6 +19,8 @@ const NotificationComponent: React.FC<INotificationComponentProps> = ({
   setShowNotification,
   unreadCount,
   onMarkAsRead,
+  onMarkAllAsRead,
+  isMarkingAllRead = false,
 }) => {
   if (!showNotification) {
     return null;
@@ -29,13 +33,31 @@ const NotificationComponent: React.FC<INotificationComponentProps> = ({
           <h3 className="text-sm font-semibold text-white">Notifications</h3>
           <p className="text-xs text-slate-400">{unreadCount} unread</p>
         </div>
-        <button
-          className="rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
-          onClick={() => setShowNotification(false)}
-        >
-          <i className="fas fa-times text-sm"></i>
-        </button>
+
+        <div className="flex items-center gap-2">
+          {/* Mark all as read — only shown when there are unread notifications */}
+          {unreadCount > 0 && (
+            <button
+              type="button"
+              onClick={onMarkAllAsRead}
+              disabled={isMarkingAllRead}
+              className="rounded-md px-2 py-1 text-xs font-medium text-blue-400 transition-colors hover:bg-white/5 hover:text-blue-300 disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Mark all notifications as read"
+            >
+              {isMarkingAllRead ? "Clearing…" : "Mark all read"}
+            </button>
+          )}
+
+          <button
+            className="rounded-full p-2 text-slate-400 transition-colors hover:bg-white/5 hover:text-white"
+            onClick={() => setShowNotification(false)}
+            aria-label="Close notifications"
+          >
+            <i className="fas fa-times text-sm"></i>
+          </button>
+        </div>
       </div>
+
       <div className="max-h-[26rem] overflow-y-auto p-2">
         {notifications.length > 0 ? (
           <div className="space-y-2">

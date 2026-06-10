@@ -3,10 +3,11 @@ import { isLoggedIn } from "../services/auth.service";
 import {
   useGetNotificationsQuery,
   useMarkNotificationReadMutation,
+  useMarkAllNotificationsReadMutation,
 } from "../redux/apis/notification.api";
 import { connectSocket, disconnectSocket } from "../socket/socket.oi";
 import type { NotificationItem } from "../models/notification";
-import type { NotificationItem, INotification } from "../models/notification";
+import type { INotification } from "../models/notification";
 
 /**
  * Notification bell: REST + Socket.IO real-time updates.
@@ -21,21 +22,23 @@ export const useNotifications = () => {
     skip: !isAuthed,
   });
   const [markNotificationRead] = useMarkNotificationReadMutation();
+  const [markAllRead, { isLoading: isMarkingAllRead }] =
+    useMarkAllNotificationsReadMutation();
 
   // Merge REST data with real-time updates
   const notifications = useMemo(() => {
     const baseNotifications = data ?? [];
-const merged = new Map<string, NotificationItem>();
+    const merged = new Map<string, NotificationItem>();
 
-for (const notification of [...realtimeNotifications, ...baseNotifications]) {
-  merged.set(notification._id, notification);
-}
+    for (const notification of [...realtimeNotifications, ...baseNotifications]) {
+      merged.set(notification._id, notification);
+    }
 
-return [...merged.values()].sort((a, b) => {
-  const aTime = new Date(a.createdAt).getTime();
-  const bTime = new Date(b.createdAt).getTime();
-  return bTime - aTime;
-});
+    return [...merged.values()].sort((a, b) => {
+      const aTime = new Date(a.createdAt).getTime();
+      const bTime = new Date(b.createdAt).getTime();
+      return bTime - aTime;
+    });
   }, [data, realtimeNotifications]);
 
   const unreadCount = notifications.filter((item) => !item.isRead).length;
@@ -51,6 +54,15 @@ return [...merged.values()].sort((a, b) => {
 
   const markAsRead = async (notificationId: string) => {
     await markNotificationRead(notificationId).unwrap();
+  };
+
+  const markAllAsRead = async () => {
+    if (unreadCount === 0) return;
+    await markAllRead().unwrap();
+    // Optimistically clear realtime state so the badge drops immediately
+    setRealtimeNotifications((prev) =>
+      prev.map((n) => ({ ...n, isRead: true }))
+    );
   };
 
   const refreshNotifications = useCallback(() => {
@@ -79,9 +91,16 @@ return [...merged.values()].sort((a, b) => {
         refreshNotifications();
       };
 
+      // Real-time: mark-all-read fired by another tab or the server
+      const handleAllRead = () => {
+        setRealtimeNotifications((prev) =>
+          prev.map((n) => ({ ...n, isRead: true }))
+        );
+        void refetch();
+      };
+
       // Listen for real-time notifications
       const handleNewNotification = (notification: INotification) => {
-        console.log("[Story Spark] Received notification:", notification);
         setRealtimeNotifications((prev) => {
           const next = [notification, ...prev.filter((item) => item._id !== notification._id)];
           return next;
@@ -92,25 +111,29 @@ return [...merged.values()].sort((a, b) => {
       socket.on("reconnect", handleSocketConnected);
       socket.on("notification:new", handleNewNotification);
       socket.on("notification:updated", handleNotificationUpdated);
+      socket.on("notification:all-read", handleAllRead);
 
       return () => {
         socket.off("connect", handleSocketConnected);
         socket.off("reconnect", handleSocketConnected);
         socket.off("notification:new", handleNewNotification);
         socket.off("notification:updated", handleNotificationUpdated);
+        socket.off("notification:all-read", handleAllRead);
       };
     } catch (error) {
       console.warn("[Story Spark] Failed to set up Socket.IO notifications:", error);
     }
-  }, [isAuthed, refreshNotifications]);
+  }, [isAuthed, refreshNotifications, refetch]);
 
   return {
     notifications,
     unreadCount,
     isOpen,
     isFetching,
+    isMarkingAllRead,
     toggle,
     close,
     markAsRead,
+    markAllAsRead,
   };
 };
