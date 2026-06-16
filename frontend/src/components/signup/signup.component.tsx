@@ -404,6 +404,7 @@ const SignUpComponent = () => {
                 register={register}
                 validation={{
                   required: "Please enter OTP",
+                  setValueAs: (value: string) => value.replace(/\D/g, ""),
                   minLength: { value: 6, message: "OTP must be 6 digits" },
                   maxLength: { value: 6, message: "OTP must be 6 digits" },
                   pattern: { value: /^[0-9]{6}$/, message: "OTP must contain only numbers" },
