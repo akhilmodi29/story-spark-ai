@@ -9,9 +9,25 @@ interface Props {
 export default function Book3D({ story, onClick }: Props) {
   const [hovered, setHovered] = useState(false);
   const colors = getGenreColor(story.tag);
+  const wordCount = story.content.split(/\s+/).length;
 
-  const height = Math.min(180, Math.max(120, 120 + story.content.split(/\s+/).length / 20));
+  const height = Math.min(180, Math.max(120, 120 + wordCount / 20));
   const width = Math.min(60, Math.max(35, 35 + story.title.length / 3));
+  const thickness = Math.min(
+  20,
+  Math.max(6, wordCount / 200)
+);
+const randomTilt =
+  ((story.title.length % 7) - 3) * 2;
+
+const genreIcons: Record<string, string> = {
+  Fantasy: "🐉",
+  Horror: "👻",
+  Romance: "❤️",
+  SciFi: "🚀",
+  Mystery: "🕵️",
+  Adventure: "🗺️",
+};
 
   return (
     <div
@@ -23,6 +39,7 @@ export default function Book3D({ story, onClick }: Props) {
         perspective: "600px",
         cursor: "pointer",
         display: "flex",
+        overflow: "visible",
         alignItems: "flex-end",
         justifyContent: "center",
         height: `${height + 20}px`,
@@ -35,12 +52,18 @@ export default function Book3D({ story, onClick }: Props) {
           position: "relative",
           transformStyle: "preserve-3d",
           transform: hovered
-            ? "rotateY(-25deg) translateY(-12px)"
-            : "rotateY(-5deg)",
+        ? `rotateY(-45deg) rotateZ(${randomTilt}deg) translateY(-12px)`
+        : `rotateY(-5deg) rotateZ(${randomTilt}deg)`,
           transition: "all 0.3s ease",
-          filter: hovered ? `drop-shadow(0 0 12px ${colors.glow}80)` : "none",
+          filter: hovered
+ ? `drop-shadow(0 0 18px ${colors.glow})`
+ : "none",
+boxShadow: hovered
+ ? `0 0 20px ${colors.glow}50`
+ : "none",
         }}
       >
+
         {/* Book spine (front face) */}
         <div
           style={{
@@ -57,6 +80,30 @@ export default function Book3D({ story, onClick }: Props) {
             overflow: "hidden",
           }}
         >
+          {wordCount > 2000 && (
+  <div
+    style={{
+      position: "absolute",
+      top: "4px",
+      left: "4px",
+      fontSize: "12px",
+    }}
+  >
+    👑
+  </div>
+)}
+        <div
+          style={{
+            position: "absolute",
+            top: 0,
+            right: 0,
+            width: "10px",
+            height: "25px",
+            background: "#ef4444",
+            clipPath:
+              "polygon(0 0,100% 0,100% 100%,50% 80%,0 100%)",
+          }}
+        />
           {/* Decorative lines */}
           <div style={{
             position: "absolute",
@@ -94,7 +141,28 @@ export default function Book3D({ story, onClick }: Props) {
           >
             {story.title}
           </div>
-
+              <div
+          style={{
+            position: "absolute",
+            top: "18px",
+            fontSize: "14px",
+          }}
+        >
+          {genreIcons[story.tag] || "📖"}
+        </div>
+        <div
+  style={{
+    position: "absolute",
+    bottom: "0",
+    left: "0",
+    width: `${Math.min(
+      100,
+      (wordCount / 2000) * 100
+    )}%`,
+    height: "3px",
+    background: colors.glow,
+  }}
+/>
           {/* Genre dot */}
           <div style={{
             position: "absolute",
@@ -113,8 +181,8 @@ export default function Book3D({ story, onClick }: Props) {
             position: "absolute",
             top: "2px",
             bottom: "2px",
-            right: "-8px",
-            width: "8px",
+            right: `-${thickness}px`,
+            width: `${thickness}px`,
             background: `linear-gradient(90deg, ${colors.spine} 0%, #0a0a0f 100%)`,
             transform: "rotateY(90deg)",
             transformOrigin: "left center",
@@ -136,6 +204,60 @@ export default function Book3D({ story, onClick }: Props) {
             borderRadius: "2px 2px 0 0",
           }}
         />
+        {hovered && (
+  <div
+    style={{
+      position: "absolute",
+      left: `${width + 20}px`,
+      top: "10px",
+      width: "220px",
+      background: "#111827",
+      padding: "12px",
+      borderRadius: "12px",
+      border: `1px solid ${colors.glow}`,
+      zIndex: 100,
+      boxShadow: "0 10px 25px rgba(0,0,0,0.4)",
+    }}
+  >
+    <div
+      style={{
+        fontWeight: "bold",
+        marginBottom: "6px",
+        color: colors.glow,
+      }}
+    >
+      {story.title}
+    </div>
+
+    <div
+      style={{
+        fontSize: "12px",
+        color: "#d1d5db",
+        lineHeight: "1.5",
+      }}
+    >
+      {story.content.slice(0, 120)}...
+    </div>
+  </div>
+)}
+        {hovered && (
+  <div
+    style={{
+      position: "absolute",
+      bottom: "-45px",
+      left: "50%",
+      transform: "translateX(-50%)",
+      background: "#111827",
+      padding: "6px 10px",
+      borderRadius: "8px",
+      fontSize: "10px",
+      whiteSpace: "nowrap",
+      zIndex: 50,
+    }}
+  >
+    {wordCount} words
+  </div>
+)}
       </div>
     </div>
   );
