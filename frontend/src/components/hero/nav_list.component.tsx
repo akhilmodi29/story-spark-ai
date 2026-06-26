@@ -10,6 +10,38 @@ const NavListComponent = () => {
   const handleLogout = () => {
     removeUserInfo();
     setLoggedIn(false);
+    navigate("/");
+    setMenuOpen(false);
+  };
+
+  const handleNavClick = () => {
+    setMenuOpen(false);
+  };
+
+  const isActive = (path: string) => {
+    return pathname === path || (path === "/" && pathname === "/");
+  };
+
+  const navItems = [
+    { to: "/", label: "Home" },
+    { to: "/explore", label: "Explore" },
+    { to: "/story-inspiration", label: "Stories" },
+    { to: "/community", label: "Community" },
+  ];
+
+  const mobileMenuVariants = {
+    hidden: { opacity: 0, height: 0, y: -8 },
+    visible: { opacity: 1, height: "auto", y: 0, transition: { duration: 0.28 } },
+    exit: { opacity: 0, height: 0, y: -8, transition: { duration: 0.22 } },
+  };
+
+  const mobileItemVariants = {
+    hidden: { opacity: 0, x: -20 },
+    visible: (i: number) => ({
+      opacity: 1,
+      x: 0,
+      transition: { delay: i * 0.05 },
+    }),
   };
 
   const linkClass = ({ isActive }: { isActive: boolean }) =>
@@ -25,6 +57,7 @@ const NavListComponent = () => {
           <NavLink to="/" end className={linkClass}>Home</NavLink>
           <NavLink to="/explore" className={linkClass}>Explore</NavLink>
           <NavLink to="/stories" className={linkClass}>Stories</NavLink>
+          <NavLink to="/chat" className={linkClass}>AI Chat</NavLink>
           {loggedIn && <NavLink to="/dashboard" className={linkClass}>Dashboard</NavLink>}
         </nav>
         
