@@ -85,6 +85,25 @@ const toVoiceOptions = (browserVoices: SpeechSynthesisVoice[]): SpeechVoiceOptio
     lang: voice.lang,
   }));
 
+const filterVoicesByGender = (
+  browserVoices: SpeechSynthesisVoice[],
+  gender: 'female' | 'male',
+): SpeechSynthesisVoice[] => {
+  const femalePattern =
+    /female|woman|samantha|zira|victoria|karen|moira|tessa|fiona|veena|lekha|susan|linda|heather|serena|aria/i;
+  const malePattern =
+    /male|man|daniel|david|alex|fred|tom|rishi|mark|james|george|richard|guy|ryan|brian/i;
+
+  const pattern = gender === 'female' ? femalePattern : malePattern;
+  const filtered = browserVoices.filter((voice) => pattern.test(voice.name));
+
+  // If not enough voices match, return all
+  if (filtered.length < 3) {
+    return browserVoices;
+  }
+  return filtered;
+};
+
 const buildWordRanges = (inputText: string): WordRange[] => {
   if (!inputText.trim()) {
     return [];
@@ -137,7 +156,7 @@ const getLanguageLabel = (lang: string): string => {
 
 export const useSpeechSynthesis = (
   text: string = '',
-  voiceGender?: 'female' | 'male',
+  _voiceGender?: 'female' | 'male',
 ): UseSpeechSynthesisResult => {
   const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null);
   const textRef = useRef(text);
@@ -197,9 +216,12 @@ export const useSpeechSynthesis = (
   const [selectedLanguage, setSelectedLanguage] = useState('en');
 
   const voices: SpeechVoiceOption[] = useMemo(() => {
-    const filtered = browserVoicesRef.current;
-    return toVoiceOptions(filtered);
-  }, [browserVoices]);
+    const allVoices = browserVoicesRef.current;
+    if (_voiceGender) {
+      return toVoiceOptions(filterVoicesByGender(allVoices, _voiceGender));
+    }
+    return toVoiceOptions(allVoices);
+  }, [_voiceGender]);
 
   const languageOptions: LanguageOption[] = useMemo(
     () => buildLanguageOptions(browserVoicesRef.current),
