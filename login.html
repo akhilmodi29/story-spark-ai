@@ -141,21 +141,15 @@
                     </button>
 
                     <!-- DIVIDER -->
-
                     <div class="auth-divider">
-
                         <div class="auth-divider-line"></div>
-
-                        <span class="auth-divider-text">
-                            OR
-                        </span>
-
+                        <span class="auth-divider-text">OR</span>
                         <div class="auth-divider-line"></div>
-
                     </div>
 
-                    <!-- FORM -->
+                    <div id="form-alert" class="ds-alert hidden" role="status" aria-live="polite"></div>
 
+                    <!-- FORM -->
                     <form
                         class="auth-form"
                         id="auth-form"
@@ -206,21 +200,18 @@
                                     Email Address
                                 </label>
 
-                                <div class="ds-input-group">
-
-                                    <i
-                                        class="fi fi-rr-envelope ds-input-icon"
-                                    ></i>
-
-                                    <input
-                                        type="email"
-                                        id="email-field"
-                                        placeholder="name@storyspark.ai"
-                                        autocomplete="email"
-                                        required
-                                    />
-
-                                </div>
+                                 <div class="ds-input-group">
+                                     <i class="fi fi-rr-envelope ds-input-icon"></i>
+                                     <input
+                                         type="email"
+                                         id="email-field"
+                                         placeholder="name@storyspark.ai"
+                                         autocomplete="email"
+                                         required
+                                         aria-describedby="email-error"
+                                     />
+                                 </div>
+                                 <p class="ds-error" id="email-error" role="alert" aria-live="polite"></p>
 
                             </div>
 
@@ -260,43 +251,35 @@
                                 </div>
 
                                 <div class="ds-input-group">
-
-                                    <i
-                                        class="fi fi-rr-lock ds-input-icon"
-                                    ></i>
-
-                                    <input
-                                        id="password-field"
-                                        placeholder="••••••••"
-                                        type="password"
-                                        autocomplete="current-password"
-                                        required
-                                    />
-
-                                    <button
-                                        onclick="togglePasswordVisibility()"
-                                        type="button"
-                                        aria-label="Toggle password visibility"
-                                        style="
-                                            position:absolute;
-                                            right:18px;
-                                            top:50%;
-                                            transform:translateY(-50%);
-                                            background:none;
-                                            border:none;
-                                            color:rgba(255,255,255,.5);
-                                            cursor:pointer;
-                                        "
-                                    >
-
-                                        <i
-                                            class="fi fi-rr-eye-crossed"
-                                            id="eye-icon"
-                                        ></i>
-
-                                    </button>
-
-                                </div>
+                                     <i class="fi fi-rr-lock ds-input-icon"></i>
+                                     <input
+                                         id="password-field"
+                                         placeholder="••••••••"
+                                         type="password"
+                                         autocomplete="current-password"
+                                         required
+                                         aria-describedby="password-error"
+                                     />
+                                     <button
+                                         onclick="togglePasswordVisibility()"
+                                         type="button"
+                                         aria-label="Toggle password visibility"
+                                         style="
+                                             position:absolute;
+                                             right:18px;
+                                             top:50%;
+                                             transform:translateY(-50%);
+                                             background:none;
+                                             border:none;
+                                             color:rgba(255,255,255,.5);
+                                             cursor:pointer;
+                                         "
+                                     >
+                                         <i class="fi fi-rr-eye-crossed" id="eye-icon"></i>
+                                     </button>
+                                 </div>
+                                 <p class="ds-error" id="password-error" role="alert" aria-live="polite"></p>
+                                 <p id="login-caps-lock-warning" class="hidden text-yellow-400 text-sm mt-2">Caps Lock is ON</p>                </div>
 
                             </div>
 

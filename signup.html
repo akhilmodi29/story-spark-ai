@@ -109,15 +109,15 @@
                     </button>
 
                     <!-- DIVIDER -->
-
                     <div class="auth-divider">
                         <div class="auth-divider-line"></div>
                         <span class="auth-divider-text">OR</span>
                         <div class="auth-divider-line"></div>
                     </div>
 
-                    <!-- FORM -->
+                    <div id="form-alert" class="ds-alert hidden" role="status" aria-live="polite"></div>
 
+                    <!-- FORM -->
                     <form
                         class="auth-form"
                         id="auth-form"
@@ -142,8 +142,9 @@
                                 <label class="ds-label" for="email-field">Email Address</label>
                                 <div class="ds-input-group">
                                     <i class="fi fi-rr-envelope ds-input-icon"></i>
-                                    <input type="email" id="email-field" placeholder="name@storyspark.ai" autocomplete="email" required />
+                                    <input type="email" id="email-field" placeholder="name@storyspark.ai" autocomplete="email" required aria-describedby="email-error" />
                                 </div>
+                                <p class="ds-error" id="email-error" role="alert" aria-live="polite"></p>
                             </div>
 
                             <!-- PASSWORD -->
@@ -162,14 +163,15 @@
                                 </div>
                                 <p class="ds-help" id="password-help">Use 8+ characters with a mix of letters and numbers.</p>
                                 <div id="password-checklist" style="display:flex; flex-direction:column; gap:4px; margin-top:8px; font-size:12px;">
-                                    <p id="rule-length" style="color: #ef4444;">✗ At least 8 characters</p>
-                                    <p id="rule-upper" style="color: #ef4444;">✗ One uppercase letter</p>
-                                    <p id="rule-lower" style="color: #ef4444;">✗ One lowercase letter</p>
-                                    <p id="rule-number" style="color: #ef4444;">✗ One number</p>
-                                    <p id="rule-special" style="color: #ef4444;">✗ One special character</p>
+                                    <p id="rule-length" class="text-red-400">✗ At least 8 characters</p>
+                                    <p id="rule-upper" class="text-red-400">✗ One uppercase letter</p>
+                                    <p id="rule-lower" class="text-red-400">✗ One lowercase letter</p>
+                                    <p id="rule-number" class="text-red-400">✗ One number</p>
+                                    <p id="rule-special" class="text-red-400">✗ One special character</p>
                                 </div>
                                 <p class="ds-help" id="password-strength"></p>
                                 <p class="ds-error" id="password-error" role="alert" aria-live="polite"></p>
+                                <p id="signup-caps-lock-warning" class="hidden text-yellow-400 text-sm mt-2">Caps Lock is ON</p>
                             </div>
 
                             <!-- CONFIRM PASSWORD -->
@@ -177,9 +179,10 @@
                                 <label class="ds-label" for="confirm-password-field">Confirm Password</label>
                                 <div class="ds-input-group">
                                     <i class="fi fi-rr-lock ds-input-icon"></i>
-                                    <input id="confirm-password-field" placeholder="Re-enter your password" type="password" autocomplete="new-password" required />
+                                    <input id="confirm-password-field" placeholder="Re-enter your password" type="password" autocomplete="new-password" required aria-describedby="confirm-password-error" />
                                 </div>
                                 <p class="ds-error" id="confirm-password-error" role="alert" aria-live="polite"></p>
+                                <p id="confirm-caps-lock-warning" class="hidden text-yellow-400 text-sm mt-2">Caps Lock is ON</p>
                             </div>
 
                         </div>
