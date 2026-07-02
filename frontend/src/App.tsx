@@ -46,6 +46,7 @@ import SignUpComponent from "./components/signup/signup.component";
 import SimpleProtectedRoute from "./components/ProtectedRoute";
 import StoriesComponent from "./components/stories/stories.component";
 import ChatPage from "./components/chat/ChatPage";
+import ReadingStatistics from "./pages/ReadingStatistics";
 
 type ProtectedRouteProps = {
   allowedRoles: string[];
@@ -150,6 +151,7 @@ const router = createBrowserRouter([
           { path: "stories", element: <StoriesComponent /> },
           { path: "branching-story", element: <BranchingStory /> },
           { path: "story-workspace", element: <StoryWorkspace /> },
+          { path: "reading-statistics", element: <ReadingStatistics /> },
         ],
       },
       { path: "*", element: <NotFoundComponent /> },
