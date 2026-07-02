@@ -14,6 +14,10 @@ type JwtVerifiedUser = {
   role?: string;
 };
 
+const getHeaderValue = (header: string | string[] | undefined): string => {
+  if (Array.isArray(header)) return header[0] ?? "";
+  return header ?? "";
+};
 
 const extractBearerToken = (authHeader: string): string => {
   if (!authHeader) return "";
@@ -22,18 +26,44 @@ const extractBearerToken = (authHeader: string): string => {
   return authHeader.slice("Bearer ".length).trim();
 };
 
+const isSecureRequest = (req: Request): boolean => {
+  const forwardedProto = getHeaderValue(req.headers["x-forwarded-proto"]);
+  const protocol = (req.protocol || "").toLowerCase();
+
+  return req.secure || protocol === "https" || forwardedProto === "https";
+};
+
 const extractTokenFromRequest = (req: Request): string => {
-  const authHeader = Array.isArray(req.headers.authorization)
-    ? req.headers.authorization[0]
-    : req.headers.authorization;
+  const authHeader = getHeaderValue(req.headers.authorization);
+  const bearerToken = extractBearerToken(authHeader);
 
-  const bearerToken = extractBearerToken(authHeader ?? "");
+  if (bearerToken) {
+    return bearerToken;
+  }
 
-  // Support both header-based and cookie-based tokens.
   const cookieToken =
     (req as any).cookies?.accessToken || (req as any).cookies?.token;
 
-  return bearerToken || cookieToken || "";
+  if (!cookieToken) {
+    return "";
+  }
+
+  const allowCookieAuth = config.auth?.allow_cookie_auth === true;
+  if (!allowCookieAuth) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Cookie-based authentication is disabled. Use the Authorization header or enable secure cookie auth explicitly."
+    );
+  }
+
+  if (!isSecureRequest(req)) {
+    throw new ApiError(
+      httpStatus.UNAUTHORIZED,
+      "Cookie-based authentication requires a secure and trusted request context."
+    );
+  }
+
+  return cookieToken;
 };
 
 const auth = (...requiredRole: string[]) =>
