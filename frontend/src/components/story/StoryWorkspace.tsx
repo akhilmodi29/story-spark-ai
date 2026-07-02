@@ -9,7 +9,7 @@ import ChapterSidebar from "./ChapterSidebar";
 import StoryViewer from "./StoryViewer";
 import ContinueStoryButton from "./ContinueStoryButton";
 import CharacterNetwork from "../CharacterNetwork";
-import WritingGoalCard from "../goals/WritingGoalCard";
+import StoryChecklist from "../checklist/StoryChecklist";
 
 import {
   getSafeFileName,
@@ -227,28 +227,27 @@ const StoryWorkspace = () => {
 
         {workspaceMode === "editor" ? (
   <>
-    <div className="p-4 border-b border-zinc-800">
-      <WritingGoalCard
-        goalType="daily"
-        targetWords={1000}
-        wordsWritten={650}
-        targetStories={3}
-        storiesWritten={2}
-        targetPrompts={10}
-        promptsCompleted={6}
-      />
-    </div>
-
-    <StoryViewer
-      chapters={currentStory.chapters}
-      storyId={currentStory.id}
-      truncated={currentStory.truncated}
+  <div className="p-4 border-b border-zinc-800">
+    <StoryChecklist
+      title={currentStory.title}
+      content={
+        currentStory.chapters
+          ?.map((chapter) => chapter.content)
+          .join("\n\n") || ""
+      }
     />
+  </div>
 
-            <div className="p-6 border-t border-zinc-800">
-              <ContinueStoryButton />
-            </div>
-          </>
+  <StoryViewer
+    chapters={currentStory.chapters}
+    storyId={currentStory.id}
+    truncated={currentStory.truncated}
+  />
+
+  <div className="p-6 border-t border-zinc-800">
+    <ContinueStoryButton />
+  </div>
+</>
         ) : (
           <CharacterNetwork storyId={currentStory.id} />
         )}
