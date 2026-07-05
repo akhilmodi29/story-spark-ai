@@ -12,45 +12,19 @@ interface DraftData {
   savedAt: string;
 }
 
-export const offlineQueue: Array<{ draftId: string; content: string; timestamp: number }> = [];
+export const offlineQueue: Array<{ content: string; timestamp: number }> = [];
 let globalIsOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
 
-export async function flushOfflineQueue(queue: Array<{ draftId: string; content: string; timestamp: number }>) {
+export async function flushOfflineQueue(queue: Array<{ content: string; timestamp: number }>) {
   for (const item of queue) {
-    await fetch("/api/v1/stories/save", {
+    await fetch("/api/stories/save", {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ draftId: item.draftId, content: item.content }),
+      body: JSON.stringify({ content: item.content }),
     });
   }
-}
-
-// Multiple things can observe the "online" event at once: this module-level
-// listener (registered once, so a flush still happens even if no editor is
-// mounted) AND a per-instance listener inside every useAutoSave() call below.
-// Without coordination, each one would call flushOfflineQueue() against the
-// same shared `offlineQueue` array, sending duplicate save requests. All
-// callers share this single in-flight promise instead of racing separate
-// flushes, so a reconnect only ever triggers one real flush no matter how
-// many listeners fire.
-let inFlightFlush: Promise<void> | null = null;
-
-function triggerFlush(): Promise<void> {
-  if (inFlightFlush) return inFlightFlush;
-  if (offlineQueue.length === 0) return Promise.resolve();
-
-  inFlightFlush = (async () => {
-    try {
-      await flushOfflineQueue(offlineQueue);
-      offlineQueue.length = 0;
-    } finally {
-      inFlightFlush = null;
-    }
-  })();
-
-  return inFlightFlush;
 }
 
 if (typeof window !== "undefined") {
@@ -58,11 +32,16 @@ if (typeof window !== "undefined") {
     globalIsOnline = false;
   });
 
-  window.addEventListener("online", () => {
+  window.addEventListener("online", async () => {
     globalIsOnline = true;
-    triggerFlush().catch((error) => {
-      console.error("Failed to flush offline queue:", error);
-    });
+    if (offlineQueue.length > 0) {
+      try {
+        await flushOfflineQueue(offlineQueue);
+        offlineQueue.length = 0;
+      } catch (error) {
+        console.error("Failed to flush offline queue:", error);
+      }
+    }
   });
 }
 
@@ -82,19 +61,19 @@ export function useAutoSave(draftId: string, title: string, content: string) {
 
       const currentOnline = typeof navigator !== "undefined" ? navigator.onLine : true;
       if (!currentOnline) {
-        offlineQueue.push({ draftId, content, timestamp: Date.now() });
+        offlineQueue.push({ content, timestamp: Date.now() });
         setPendingCount(offlineQueue.length);
         setLastSaved(new Date());
         setSaveStatus("saved");
         return;
       }
 
-      const response = await fetch("/api/v1/stories/save", {
+      const response = await fetch("/api/stories/save", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ draftId, content }),
+        body: JSON.stringify({ content }),
       });
 
       if (!response.ok) {
@@ -115,12 +94,9 @@ export function useAutoSave(draftId: string, title: string, content: string) {
       if (offlineQueue.length > 0) {
         try {
           setSaveStatus("saving");
-          // Shares the same in-flight promise as the module-level listener
-          // and any other mounted useAutoSave() instance — only one real
-          // network flush happens per reconnect, no matter how many
-          // components are listening.
-          await triggerFlush();
-          setPendingCount(offlineQueue.length);
+          await flushOfflineQueue(offlineQueue);
+          offlineQueue.length = 0;
+          setPendingCount(0);
           setLastSaved(new Date());
           setSaveStatus("saved");
         } catch (error) {
