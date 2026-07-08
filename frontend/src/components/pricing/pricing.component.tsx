@@ -6,7 +6,7 @@ const plans = [
   { title: "Enterprise", price: "$49", duration: "/month", features: ["Team collaboration", "API access"], linkTo: "/contact-us", buttonLabel: "Contact Sales" },
 ];
 
-const PricingComponent = () => {
+const PricingMainComponent = () => {
   const navigate = useNavigate();
   return (
     <section className="story-section" id="pricing-section">
@@ -38,4 +38,4 @@ const PricingComponent = () => {
   );
 };
 
-export default PricingComponent;
+export default PricingMainComponent;
