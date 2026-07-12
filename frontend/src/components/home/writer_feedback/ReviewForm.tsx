@@ -66,7 +66,6 @@ const ReviewForm: React.FC = () => {
   const [rating, setRating] = useState(0);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
-  const [isDark, setIsDark] = useState(false);
 
   const [createReview, { isLoading }] = useCreateReviewMutation();
 
@@ -96,8 +95,7 @@ const ReviewForm: React.FC = () => {
       setFeedback("");
       setRating(0);
       setErrors({});
-    } catch (err) {
-      // keep error message generic
+    } catch {
       setErrors({ submit: "Failed to submit review. Please try again." });
       setSuccess(false);
     }
