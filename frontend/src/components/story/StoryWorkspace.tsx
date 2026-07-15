@@ -217,7 +217,14 @@ const StoryWorkspace = () => {
             </div>
           </>
         ) : (
-          <CharacterNetwork storyId={currentStory.id} />
+           <CharacterNetwork
+           storyId={currentStory.id}
+                       storyContent={
+             currentStory.chapters
+               ?.map((chapter) => chapter.content)
+                .join("\n\n") || ""
+            }
+          />
         )}
       </div>
     </div>
