@@ -19,11 +19,6 @@ import {
   Star,
   Volume2,
   Volume,
- feat/collaboration-1122
-  ChevronUp,
-  ChevronDown,
-
- main
 } from "lucide-react";
 
 import { useSpeechSynthesis } from "../hooks/useSpeechSynthesis";
@@ -88,12 +83,8 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
     const favorites = useVoiceFavorites();
     const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
 
- feat/collaboration-1122
     // ✅ FIX: Calculate actual word count from story text
     const actualTotalWords = useMemo(() => getWordCount(text), [text]);
-
-
- main
     const speedSelectId = useId();
     const voiceGenderSelectId = useId();
     const languageSelectId = useId();
@@ -175,11 +166,7 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
           speech.setSelectedVoiceId(displayedVoices[0].id);
         }
       }
- feat/collaboration-1122
-    }, [showFavoritesOnly, displayedVoices, speech]);
-
     }, [showFavoritesOnly, displayedVoices, speech.selectedVoiceId]);
- main
 
     useEffect(() => {
       const handleKeyDown = (event: KeyboardEvent) => {
@@ -228,9 +215,7 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
       };
     }, [speech.isPlaying, speech.isPaused, speech.rate, speech.pause, speech.resume, speech.play, speech.setRate]);
 
- feat/collaboration-1122
-
-    const scrollToTop = () => {
+     const scrollToTop = () => {
       const container = document.querySelector('[role="region"]');
       if (container) {
         container.scrollTo({ top: 0, behavior: 'smooth' });
@@ -244,7 +229,6 @@ const AudioPlayer = forwardRef<AudioPlayerHandle, AudioPlayerProps>(
       }
     };
 
- main
     const isLoading = speech.isSupported && !speech.isReady;
     const canNarrate = speech.isSupported && speech.isReady && text.trim().length > 0;
 
