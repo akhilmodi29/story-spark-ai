@@ -19,15 +19,15 @@ const AuthLayout = ({ children, title, subtitle }: Props) => {
         </Link>
 
         <div>
-          <h1 className="text-3xl text-slate-800 dark:text-gray-100 font-bold">{title}</h1>
+          <h1 className="text-2xl md:text-3xl text-slate-800 dark:text-gray-100 font-bold">{title}</h1>
 
-          <p className="mt-2 text-slate-500 dark:text-gray-400">{subtitle}</p>
+          <p className="mt-2 text-sm md:text-base text-slate-500 dark:text-gray-400">{subtitle}</p>
         </div>
       </div>
 
       {/* Right Form Section */}
-      <div className="bg-white dark:bg-black flex flex-1 items-center justify-center p-6 md:w-[65%] md:p-8 transition-colors duration-300">
-        <div className="w-full max-w-md py-8 md:py-0">{children}</div>
+      <div className="bg-white dark:bg-black flex flex-1 items-center justify-center p-6 md:p-8 transition-colors duration-300">
+        <div className="w-full max-w-md py-4 md:py-0">{children}</div>
       </div>
     </div>
   );
