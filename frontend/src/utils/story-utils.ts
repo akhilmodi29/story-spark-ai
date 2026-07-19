@@ -20,7 +20,7 @@ export const calculateReadingTime = (content: string | undefined): number => {
 export const formatReadingStats = (content: string | undefined): string => {
   const words = getWordCount(content);
   const time = calculateReadingTime(content);
-  return `${time} min read • ${words} words`;
+  return `${time} min read - ${words} words`;
 };
 
 /* ------------------------------------------------------------------ */
