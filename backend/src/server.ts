@@ -8,11 +8,12 @@ import { Server } from "socket.io";
 import { JwtHelpers } from "./utils/jwt.helper";
 import { Secret } from "jsonwebtoken";
 import logger from "./utils/logger.util";
+import { setNotificationSocket } from "./socket/notification.socket";
+import { setupCollabSocket } from "./socket/collab.socket";
 import { setupCollabSocket } from "./socket/collab.socket";
 import { setNotificationSocket } from "./socket/notification.socket";
 import { YjsGateway } from "./app/modules/collab/yjs.gateway";
 import { socketRateLimiter } from "./socket/socket-rate-limiter";
-
 
 // Override DNS resolvers only when explicitly configured, default to the platform environment
 if (config.dns_servers?.length) {
@@ -175,7 +176,20 @@ async function main() {
   setNotificationSocket(io);
   new YjsGateway(io);
 
+  const io = new Server(httpServer, {
+    cors: {
+      origin: socketCorsOrigins,
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      credentials: true,
+    },
+  });
+
+  setNotificationSocket(io);
+  setupCollabSocket(io);
+
+
   logger.info("🔌 Socket.IO server initialized with rate limiting");
+
   // Start the server listener
   const PORT = config.port || 4000;
   httpServer.listen(PORT, () => {
