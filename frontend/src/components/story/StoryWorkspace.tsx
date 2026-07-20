@@ -47,6 +47,7 @@ import WritingChallengeGenerator from "../writing-challenges/WritingChallengeGen
 import StoryNamingAssistant from "../naming-assistant/StoryNamingAssistant";
 import StoryPublishingReadiness from "../publishing-readiness/StoryPublishingReadiness";
 import StoryTagGenerator from "../story-tags/StoryTagGenerator";
+import StoryReadingInfo from "../reading-info/StoryReadingInfo";
 import {
   getSafeFileName,
   downloadBlob,
@@ -537,6 +538,14 @@ const StoryWorkspace = () => {
 />
 
 <StoryTagGenerator
+  story={
+    currentStory.chapters
+      ?.map((chapter) => chapter.content)
+      .join("\n\n") || ""
+  }
+/>
+
+<StoryReadingInfo
   story={
     currentStory.chapters
       ?.map((chapter) => chapter.content)
