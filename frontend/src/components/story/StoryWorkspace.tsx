@@ -43,6 +43,7 @@ import StoryReadingAnalytics from "../analytics/StoryReadingAnalytics";
 import StoryRevisionHistory from "../revision-history/StoryRevisionHistory";
 import { createRevision } from "../../utils/storyRevisionHistory";
 import StoryEndingAnalyzer from "../ending-analyzer/StoryEndingAnalyzer";
+import WritingChallengeGenerator from "../writing-challenges/WritingChallengeGenerator";
 import {
   getSafeFileName,
   downloadBlob,
@@ -515,6 +516,8 @@ const StoryWorkspace = () => {
     console.log("Regenerate ending:", prompt);
   }}
 />
+
+<WritingChallengeGenerator />
   <StoryViewer
     chapters={currentStory.chapters}
     storyId={currentStory.id}
