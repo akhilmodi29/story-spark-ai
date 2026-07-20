@@ -38,6 +38,7 @@ import StorySessionRecovery from "../recovery/StorySessionRecovery";
 import StoryComparisonDashboard from "../comparison/StoryComparisonDashboard";
 import StoryTimelineVisualization from "../timeline/StoryTimelineVisualization";
 import StoryRelationshipGraph from "../relationship-graph/StoryRelationshipGraph";
+import StoryPlotTwistGenerator from "../plot-twist/StoryPlotTwistGenerator";
 
 
 import {
@@ -468,6 +469,17 @@ const StoryWorkspace = () => {
       ?.map((chapter) => chapter.content)
       .join("\n\n") || ""
   }
+/>
+
+<StoryPlotTwistGenerator
+  story={
+    currentStory.chapters
+      ?.map((chapter) => chapter.content)
+      .join("\n\n") || ""
+  }
+  onApply={(twist) => {
+    console.log("Selected plot twist:", twist);
+  }}
 />
 
   <StoryViewer
