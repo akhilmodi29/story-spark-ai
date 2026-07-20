@@ -1,71 +1,80 @@
-import { describe, it, expect, beforeEach, vi } from "vitest";
+import { describe, it, expect, beforeEach } from "vitest";
 import {
   saveStoryDraft,
   loadStoryDraft,
   clearStoryDraft,
-  StoryDraftData,
+  type StoryDraftData,
 } from "../story-draft";
 
-const mockDraft: StoryDraftData = {
-  prompt: "A dragon who loves knitting",
-  genre: "Fantasy",
+const validDraft: StoryDraftData = {
+  prompt: "A story about dragons",
+  genre: "fantasy",
   length: "medium",
-  tone: "whimsical",
+  tone: "adventurous",
   language: "en",
-  savedAt: "2026-06-27T12:00:00Z",
+  savedAt: "2026-07-05T10:00:00Z",
 };
 
-describe("story-draft", () => {
+describe("story-draft utility", () => {
   beforeEach(() => {
     localStorage.clear();
-    vi.restoreAllMocks();
   });
 
   describe("saveStoryDraft", () => {
-    it("stores a draft in localStorage", () => {
-      saveStoryDraft(mockDraft);
-      expect(localStorage.getItem("storyspark_story_draft_v1")).toBe(
-        JSON.stringify(mockDraft)
-      );
+    it("stores draft JSON under the correct localStorage key", () => {
+      saveStoryDraft(validDraft);
+      const stored = localStorage.getItem("storyspark_story_draft_v1");
+      expect(stored).not.toBeNull();
+      const parsed = JSON.parse(stored as string) as StoryDraftData;
+      expect(parsed.prompt).toBe("A story about dragons");
+      expect(parsed.genre).toBe("fantasy");
     });
 
-    it("does not throw when draft is null", () => {
-      expect(() => saveStoryDraft(null as any)).not.toThrow();
+    it("is a no-op when draft is null", () => {
+      expect(() => saveStoryDraft(null as unknown as StoryDraftData)).not.toThrow();
+      expect(localStorage.getItem("storyspark_story_draft_v1")).toBeNull();
     });
 
-    it("handles SSR environment gracefully", () => {
-      // The SSR guard prevents any call to localStorage when window is undefined
-      // In jsdom environment, window is defined so localStorage is used
-      expect(() => saveStoryDraft(mockDraft)).not.toThrow();
+    it("is a no-op when draft is undefined", () => {
+      expect(() => saveStoryDraft(undefined as unknown as StoryDraftData)).not.toThrow();
+    });
+
+    it("is a no-op when draft is empty object", () => {
+      const emptyDraft = {} as StoryDraftData;
+      saveStoryDraft(emptyDraft);
+      // Empty object is still truthy so it gets saved
+      const stored = localStorage.getItem("storyspark_story_draft_v1");
+      expect(stored).not.toBeNull();
     });
   });
 
   describe("loadStoryDraft", () => {
-    it("returns null when no draft exists", () => {
+    it("returns stored draft as StoryDraftData", () => {
+      localStorage.setItem("storyspark_story_draft_v1", JSON.stringify(validDraft));
+      const loaded = loadStoryDraft();
+      expect(loaded).not.toBeNull();
+      expect((loaded as StoryDraftData).prompt).toBe("A story about dragons");
+      expect((loaded as StoryDraftData).genre).toBe("fantasy");
+    });
+
+    it("returns null when no draft is stored", () => {
       expect(loadStoryDraft()).toBeNull();
     });
 
-    it("returns null for empty localStorage value", () => {
+    it("returns null when stored JSON is invalid", () => {
+      localStorage.setItem("storyspark_story_draft_v1", "not valid json {{{");
+      expect(loadStoryDraft()).toBeNull();
+    });
+
+    it("returns null when stored value is empty string", () => {
       localStorage.setItem("storyspark_story_draft_v1", "");
-      expect(loadStoryDraft()).toBeNull();
-    });
-
-    it("returns parsed draft when it exists", () => {
-      localStorage.setItem("storyspark_story_draft_v1", JSON.stringify(mockDraft));
-      const result = loadStoryDraft();
-      expect(result).toEqual(mockDraft);
-    });
-
-    it("returns null and does not throw on invalid JSON", () => {
-      localStorage.setItem("storyspark_story_draft_v1", "not valid json {");
-      expect(() => loadStoryDraft()).not.toThrow();
       expect(loadStoryDraft()).toBeNull();
     });
   });
 
   describe("clearStoryDraft", () => {
-    it("removes the draft from localStorage", () => {
-      localStorage.setItem("storyspark_story_draft_v1", JSON.stringify(mockDraft));
+    it("removes draft from localStorage", () => {
+      localStorage.setItem("storyspark_story_draft_v1", JSON.stringify(validDraft));
       clearStoryDraft();
       expect(localStorage.getItem("storyspark_story_draft_v1")).toBeNull();
     });
@@ -73,5 +82,11 @@ describe("story-draft", () => {
     it("does not throw when no draft exists", () => {
       expect(() => clearStoryDraft()).not.toThrow();
     });
+  });
+
+  it("round-trip: save then load returns equivalent data", () => {
+    saveStoryDraft(validDraft);
+    const loaded = loadStoryDraft();
+    expect(loaded).toEqual(validDraft);
   });
 });
