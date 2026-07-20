@@ -44,6 +44,7 @@ import StoryRevisionHistory from "../revision-history/StoryRevisionHistory";
 import { createRevision } from "../../utils/storyRevisionHistory";
 import StoryEndingAnalyzer from "../ending-analyzer/StoryEndingAnalyzer";
 import WritingChallengeGenerator from "../writing-challenges/WritingChallengeGenerator";
+import StoryNamingAssistant from "../naming-assistant/StoryNamingAssistant";
 import {
   getSafeFileName,
   downloadBlob,
@@ -518,6 +519,13 @@ const StoryWorkspace = () => {
 />
 
 <WritingChallengeGenerator />
+
+<StoryNamingAssistant
+  onInsert={(name) => {
+    console.log("Insert name:", name);
+  }}
+/>
+
   <StoryViewer
     chapters={currentStory.chapters}
     storyId={currentStory.id}
