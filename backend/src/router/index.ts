@@ -30,6 +30,8 @@ import { SearchRouter } from "../app/modules/search/search.router";
 import { StoryConsistencyRouter } from "../app/modules/story_consistency/story_consistency.router";
 import { StoryRatingRouter } from "../app/modules/story_rating/story_rating.router";
 import { CollectionRouter } from "../app/modules/collection/collection.router";
+// NEW — mounts POST /generate, /continue, /continuations (see issue #5090)
+import StoryRouter from "../routes/story.routes";
 const router = express.Router();
 
 const modules = [
@@ -92,6 +94,13 @@ const modules = [
   {
     path: "/story",
     router: StoryVersionRouter,
+  },
+  {
+    // NEW — same "/story" prefix, different sub-paths (/generate, /continue,
+    // /continuations). Express tries routers in array order, so this is safe
+    // to add right after StoryVersionRouter above.
+    path: "/story",
+    router: StoryRouter,
   },
   {
     path: "/analytics",
