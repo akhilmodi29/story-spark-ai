@@ -110,7 +110,7 @@ export const getUserInfo = (): AuthUserInfo | null => {
 };
 
 export const isLoggedIn = () => {
-  return !!getValidDecodedToken();
+  return getUserInfo() !== null;
 };
 
 export const removeUserInfo = () => {
